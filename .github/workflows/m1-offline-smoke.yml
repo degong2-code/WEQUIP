@@ -1,0 +1,21 @@
+# M1-only public-source smoke; does not certify WEQUIP Production F.
+name: WEQUIP M1 offline provider smoke
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  m1-offline-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout pinned action
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Runtime information
+        run: python3 --version
+      - name: Exact-source synthetic smoke
+        run: python3 -B scripts/m1_offline_smoke.py
+      - name: Focused negative fail-closed tests
+        run: python3 -B -m unittest discover -s tests -v

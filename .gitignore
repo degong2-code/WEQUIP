@@ -1,0 +1,15 @@
+# Exclude credentials and operational artifacts
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+*.pyo
+*.zip
+*.log
+*.db
+*.sqlite
+raw/
+proof/
+cache/
+artifacts/

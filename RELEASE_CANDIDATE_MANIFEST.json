@@ -1,0 +1,66 @@
+{
+  "as_of": "2026-10-27",
+  "authorship": "USER_ATTESTED_DIRECT_OR_AI_CREATED",
+  "ci_checkout_commit": "11bd71901bbe5b1630ceea73d27597364c9af683",
+  "files": {
+    ".github/workflows/m1-offline-smoke.yml": {
+      "bytes": 684,
+      "reused_unchanged_from_m1": false,
+      "sha256": "8a7813640865f1ccf5d1493bd5f079025825f0f446c19f9abf3c21c4d600a5c1"
+    },
+    ".gitignore": {
+      "bytes": 155,
+      "reused_unchanged_from_m1": false,
+      "sha256": "a902a86cbbaacedcb2bc7fa8433da4531f39aa0e09528c6fb417f94a726413cc"
+    },
+    "README.md": {
+      "bytes": 2474,
+      "reused_unchanged_from_m1": false,
+      "sha256": "1fb9832322a23bab9238d3d69660b567b270e128941927bec445d3e7b66c0bef"
+    },
+    "scripts/__init__.py": {
+      "bytes": 47,
+      "reused_unchanged_from_m1": true,
+      "sha256": "e88d636010db1362cdc0e7c806bfdc79c6db4efe48507f372d72aa4975dfa33f"
+    },
+    "scripts/m1_offline_smoke.py": {
+      "bytes": 4001,
+      "reused_unchanged_from_m1": true,
+      "sha256": "72e46ffbf646421801f9c4484ef97432639324fe37efe4f5fbdbbea9da01761c"
+    },
+    "source/Omnium_Expected_Secondary_Provider_v2.py": {
+      "bytes": 25851,
+      "reused_unchanged_from_m1": true,
+      "sha256": "24baafbdc895fc7b39515ca131be3e65c1077b094cc6c6216c4d203190a44f37"
+    },
+    "tests/__init__.py": {
+      "bytes": 0,
+      "reused_unchanged_from_m1": true,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "tests/test_m1_offline_smoke.py": {
+      "bytes": 3147,
+      "reused_unchanged_from_m1": true,
+      "sha256": "5f42a781b0c3ef198a6127d759abfb6edca3a861256cba7a331502b7b8eb0e5e"
+    }
+  },
+  "github_actions_executed": false,
+  "github_public_repo_created": false,
+  "github_push_performed": false,
+  "license": "NOT_SELECTED",
+  "lifecycle": "M1_ONLY_PUBLICATION_APPROVED__COMMIT_PENDING",
+  "original_m1_zip_sha256": "73ae44b80e1dd8f8856545dadc0e1e6c591e4079058c787c4a5b6ff1ee6cdaa1",
+  "original_provider_sha256": "24baafbdc895fc7b39515ca131be3e65c1077b094cc6c6216c4d203190a44f37",
+  "original_review_zip_sha256": "323e8d8b7aa04c79b5a7be2a63244875ecd2b1e66d97bd16ceba151fdd748c38",
+  "owner": "A_MAIN_SOURCE_PUBLICATION_ONLY",
+  "product_or_project_exact_next": "Preserve PAUSED Production F; consumer/CP-SAT must wait for A_MAIN separate authorization.",
+  "production_f_status": "PAUSED",
+  "production_f_validated": false,
+  "public_release_approved": true,
+  "public_release_scope": "M1_OFFLINE_SYNTHETIC_PROVIDER_ONLY",
+  "publication_approved_by": "USER_IN_CHAT_2026-10-27",
+  "schema": "WEQUIP_M1_PUBLIC_RELEASE_CANDIDATE",
+  "session_or_test_exact_next": "User creates separate WEQUIP Public repo initialized with README; connector commits pinned nine-file tree and verifies hosted Actions; no product promotion.",
+  "third_party_code": "NO_THIRD_PARTY_CODE_IDENTIFIED_IN_FOCUSED_SCOPE__NOT_GLOBAL_CERTIFICATION",
+  "version": "1.0"
+}
