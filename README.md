@@ -7,8 +7,10 @@ This is the **first, intentionally limited public-source foundation** of WEQUIP,
 - `source/Omnium_Expected_Secondary_Provider_v2.py` — unchanged project source, SHA256 `24baafbdc895fc7b39515ca131be3e65c1077b094cc6c6216c4d203190a44f37`.
 - `scripts/m1_offline_smoke.py` — exact-byte/size checks, isolated synthetic self-test, sanitized JSON receipt.
 - `tests/test_m1_offline_smoke.py` — 6 focused positive/negative checks.
-- `.github/workflows/m1-offline-smoke.yml` — manual `workflow_dispatch` only, read-only permission, pinned checkout.
+- `.github/workflows/m1-offline-smoke.yml` — `push`-triggered CI on isolated `work/wequip-m1-auto-ci` (not `main`), scoped to source, scripts, tests, workflow and release-manifest changes; read-only permission, pinned checkout.
 - `RELEASE_CANDIDATE_MANIFEST.json` — exact file identities and scope limitation.
+
+**Snapshot identity:** `RELEASE_CANDIDATE_MANIFEST.json` describes the original approved first-public-commit candidate at `f52f8cebf22b01595f0bf0200fbb729ffe933e69`. It is immutable historical release evidence, **not** a live checksum manifest for subsequent development-branch commits. For CI, compare the actual Git tree and the Actions run's `head_sha`; do not treat the old candidate manifest's workflow/test hashes or pre-publication status fields as current branch state.
 
 ## Run offline
 

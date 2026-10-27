@@ -59,6 +59,16 @@ class M1OfflineSmoke(unittest.TestCase):
         self.assertEqual(hashlib.sha256(raw).hexdigest(), PIN_SHA256)
         self.assertEqual(len(raw), 25851)
 
+    def test_07_truncated_source_fails_closed_before_execution(self):
+        with tempfile.TemporaryDirectory(prefix='wequip_m1_negative_') as d:
+            dst = Path(d) / SOURCE_REL
+            dst.parent.mkdir(parents=True)
+            original = (ROOT / SOURCE_REL).read_bytes()
+            dst.write_bytes(original[:-1])
+            got = run_smoke(Path(d))
+            self.assertEqual(got['result'], 'FAIL_CLOSED_SOURCE_SIZE_MISMATCH')
+            self.assertFalse(got['source_self_test_executed'])
+
     def test_06_negative_cli_status(self):
         with tempfile.TemporaryDirectory(prefix='wequip_m1_negative_') as d:
             cp = subprocess.run([
