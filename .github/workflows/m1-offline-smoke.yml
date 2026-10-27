@@ -1,7 +1,16 @@
-# M1-only public-source smoke; does not certify WEQUIP Production F.
+# M1 development-branch CI only; not a WEQUIP Production F certification.
+# main and other branches remain unchanged.
 name: WEQUIP M1 offline provider smoke
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - work/wequip-m1-auto-ci
+    paths:
+      - .github/workflows/m1-offline-smoke.yml
+      - source/**
+      - scripts/**
+      - tests/**
+      - RELEASE_CANDIDATE_MANIFEST.json
 permissions:
   contents: read
 jobs:
