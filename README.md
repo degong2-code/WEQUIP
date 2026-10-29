@@ -26,3 +26,7 @@ The WEQUIP user confirmed that WEQUIP Python code was directly authored or AI-ge
 **No open-source license has been selected.** Public visibility does not automatically grant general reuse/modification/distribution rights. Third-party data and future product-code inclusion require their own review.
 
 **Historic receipt compatibility:** `public_release_approved: false` produced by the unchanged migration smoke runner reflects its original pre-publication candidate/prod-release guard; it is not a live claim about the repository's GitHub visibility. The `RELEASE_CANDIDATE_MANIFEST.json` records this distinct M1 publication approval. We preserve the tested runner bytes rather than silently rewriting its semantics.
+
+## Long-term architecture direction (2026-10-29)
+
+WEQUIP's product is a **season/data-replaceable optimization engine**, not a single M1 fixture or current-season dataset. Read [Engine-first development policy](docs/ENGINE_FIRST_DEVELOPMENT_POLICY.md) for the distinction between data, game-rule policy, runtime user input, and stable Solver semantics, plus its two-dataset/same-engine-SHA readiness check. This documentation does **not** expand M1 publication or production certification scope.
