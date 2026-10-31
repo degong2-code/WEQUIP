@@ -12,7 +12,7 @@ This runner is TEST_ONLY. It does not certify Production F, MIG-04, a real-seaso
 
 | Purpose | Private commit SHA | Test scope |
 |---|---|---|
-| PR #8 SSFINDOUT Target V1 Receiver | fb82e2127ca70848976484c84e0f91179ee75e80 | JSON Schema, cross-field semantics, normalization, negative/fail-closed cases |
+| PR #8 SSFINDOUT Target V1 Receiver | ed21f789da6ea5905c6594d31fd4427def04d8b3 | JSON Schema, cross-field semantics, normalization, negative/fail-closed cases |
 | PR #9 Absolute CHMV Balanced | 3a980caadacb340991b07778785e6700d587e46c | Native OR-Tools CP-SAT objective and exact arithmetic regression |
 
 The workflow pins both source SHAs as literals. It accepts no arbitrary source-ref input and only runs on the public repository's main branch after A_MAIN pushes the dedicated trigger file.

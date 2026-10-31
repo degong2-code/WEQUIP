@@ -24,7 +24,7 @@ jobs:
       name: wequip-private-source-runner
       deployment: false
     env:
-      PR8_SOURCE_SHA: fb82e2127ca70848976484c84e0f91179ee75e80
+      PR8_SOURCE_SHA: ed21f789da6ea5905c6594d31fd4427def04d8b3
       PR9_SOURCE_SHA: 3a980caadacb340991b07778785e6700d587e46c
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONNOUSERSITE: "1"
@@ -49,7 +49,7 @@ jobs:
           expected = {
               "scope": "TEST_ONLY",
               "requested_by": "A_MAIN",
-              "pr8_source_sha": "fb82e2127ca70848976484c84e0f91179ee75e80",
+              "pr8_source_sha": "ed21f789da6ea5905c6594d31fd4427def04d8b3",
               "pr9_source_sha": "3a980caadacb340991b07778785e6700d587e46c",
               "private_source_artifact_upload": False
           }
@@ -79,7 +79,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: degong2-code/ai-project-lab
-          ref: fb82e2127ca70848976484c84e0f91179ee75e80
+          ref: ed21f789da6ea5905c6594d31fd4427def04d8b3
           token: ${{ secrets.WEQUIP_PRIVATE_SOURCE_READ_TOKEN }}
           path: private-source/pr8
           fetch-depth: 1
