@@ -2,112 +2,111 @@
 
 ## Purpose and boundary
 
-This workflow reuses the existing public `degong2-code/WEQUIP` repository as a **temporary execution host** for focused tests against two exact commits in the private `degong2-code/ai-project-lab` repository.
+This workflow uses the public degong2-code/WEQUIP repository only as a GitHub-hosted execution host for focused tests against two exact commits in private degong2-code/ai-project-lab.
 
-It does **not** publish, mirror, commit, or upload private WEQUIP source code or data. The public repository receives only this workflow and this setup document. The existing M1 public-source scope and the separate M2 branch are unchanged.
+It does not publish, mirror, commit, or upload private WEQUIP source code or data. The public repository stores only this workflow, this setup document, and a small non-secret trigger receipt. No private source artifact or cache is uploaded.
 
-This runner is not a production runtime and does not certify Production F, MIG-04, a real-season database, Windows runtime behavior, SimulationCraft parity, or complete Gearset/Envelope E2E.
+This runner is TEST_ONLY. It does not certify Production F, MIG-04, a real-season database, Windows runtime behavior, SimulationCraft parity, or complete Gearset/Envelope E2E.
 
 ## Exact private source pins
 
 | Purpose | Private commit SHA | Test scope |
 |---|---|---|
-| PR #8 SSFINDOUT Target V1 Receiver | `fb82e2127ca70848976484c84e0f91179ee75e80` | JSON Schema, cross-field semantics, normalization, negative/fail-closed cases |
-| PR #9 Absolute CHMV Balanced | `3a980caadacb340991b07778785e6700d587e46c` | Native OR-Tools CP-SAT objective and exact arithmetic regression |
+| PR #8 SSFINDOUT Target V1 Receiver | fb82e2127ca70848976484c84e0f91179ee75e80 | JSON Schema, cross-field semantics, normalization, negative/fail-closed cases |
+| PR #9 Absolute CHMV Balanced | 3a980caadacb340991b07778785e6700d587e46c | Native OR-Tools CP-SAT objective and exact arithmetic regression |
 
-The workflow contains these SHAs as fixed literals. It accepts no arbitrary source-ref input and runs only from the public repository's `main` branch.
-
-The environment is used only as an approval/secret gate. The workflow sets `deployment: false`, so it does not create a deployment record.
+The workflow pins both source SHAs as literals. It accepts no arbitrary source-ref input and only runs on the public repository's main branch after A_MAIN pushes the dedicated trigger file.
 
 ## Test suites
 
-The workflow runs four suites:
+1. PR #8: test_receiver_adapter_v1.py
+2. PR #9: test_absolute_chmv_balanced_v1.py
+3. Existing EffectAware regression: test_effectaware_cp_sat_v1_1.py
+4. Existing Stage13 resource/copy/tier/socket regression: test_stage13_resource_copy_basis_v1_1.py
 
-1. PR #8: `test_receiver_adapter_v1.py`
-2. PR #9: `test_absolute_chmv_balanced_v1.py`
-3. Existing EffectAware regression: `test_effectaware_cp_sat_v1_1.py`
-4. Existing Stage13 resource/copy/tier/socket regression: `test_stage13_resource_copy_basis_v1_1.py`
+Dependencies are pinned to jsonschema==4.25.1 and ortools==9.14.6206. The runner requires Python 3.12.
 
-Dependencies are pinned to `jsonschema==4.25.1` and `ortools==9.14.6206`. The runner requires Python 3.12.
+These focused tests do not prove full Joint optimization, canonical Production F integration, global OPTIMAL, or production completion.
 
-The two baseline EffectAware/Stage13 suites are included to protect the existing native CP-SAT and resource/copy constraints while testing the new objective. They do not prove full Joint optimization or production integration.
+## One-time user setup
 
-## Required owner setup
+The user performs only the one-time private-repository authorization. A_MAIN performs the trigger commit and all subsequent test execution, log inspection, correction, and reruns.
 
-Do this only after reviewing and merging the runner PR.
+### 1. Environment
 
-### 1. Create the protected environment
+In degong2-code/WEQUIP, create or retain Environment:
 
-In `degong2-code/WEQUIP`:
+wequip-private-source-runner
 
-1. Open **Settings → Environments → New environment**.
-2. Name it exactly `wequip-private-source-runner`.
-3. Add a required reviewer (preferably a second trusted maintainer; if the repository owner must approve their own run, do not enable **Prevent self-review**).
-4. Set deployment branches/tags to **Selected branches**, then allow only branch `main`.
-5. Save the protection rules.
+Configure deployment branches/tags as Selected branches and tags, allowing only main.
 
-Do not run the workflow before the environment has been configured. GitHub automatically creates a referenced environment if it does not exist, but that new environment has no protection rules or secrets.
+Do not configure Required reviewers or Wait timer. They would reintroduce a manual approval on every run, which is not part of the intended operating model. The workflow uses deployment: false; it does not create deployment records. The existing main branch rule is already present; do not add a duplicate.
 
-### 2. Create a temporary read-only Fine-grained PAT
+If Required reviewers were previously enabled, remove that protection rule. The branch restriction to main must remain.
 
-Create a Fine-grained personal access token with:
+### 2. Temporary read-only Fine-grained PAT
 
-- Resource owner: `degong2-code`
-- Repository access: **Only select repositories**
-- Selected repository: `ai-project-lab`
+Create a Fine-grained PAT with:
+
+- Resource owner: degong2-code
+- Repository access: Only select repositories
+- Selected repository: ai-project-lab only
 - Repository permissions:
-  - **Contents: Read-only**
-  - **Metadata: Read-only**
-- Expiration: shortest practical period (recommended 1–7 days)
+  - Contents: Read-only
+  - Metadata: Read-only
+- Expiration: 7 days (or the shortest practical period)
 
-No Actions, Administration, Issues, Pull requests, or write permissions are needed.
+No Actions, Administration, Issues, Pull requests, Workflows, or write permissions are needed.
 
 Never paste the token into ChatGPT, a commit, an issue, a workflow file, or a log.
 
-### 3. Add the token as an environment secret
+### 3. Add the Environment Secret
 
-In **Settings → Environments → wequip-private-source-runner → Environment secrets**, add:
+In Settings → Environments → wequip-private-source-runner → Environment secrets, add:
 
-`WEQUIP_PRIVATE_SOURCE_READ_TOKEN`
+WEQUIP_PRIVATE_SOURCE_READ_TOKEN
 
-Use the PAT value. Do not create a repository-wide secret for this workflow.
+Use the PAT value. Do not create a repository-wide secret. Do not send the PAT to ChatGPT.
 
-### 4. Run the focused test workflow
+### 4. Automatic test execution — no user clicks or approvals
 
-1. Open **Actions → WEQUIP private-source focused tests (TEST_ONLY)**.
-2. Select **Run workflow** on branch `main`.
-3. Approve the environment gate when requested.
-4. Inspect the sanitized run summary and each test suite's actual result.
+After the user confirms that the Environment Secret has been saved, A_MAIN creates or updates:
 
-The workflow uses `workflow_dispatch` only. It does not run for pull requests, pushes, schedules, or arbitrary branches.
+docs/private-source-runner/trigger.json
 
-## Security controls implemented in the workflow
+on main. That single push automatically starts this workflow. The workflow only listens for a push to this exact path on main; ordinary source commits and pull-request events do not trigger it.
 
-- Public host permissions are read-only: `contents: read`.
-- Private repository and commit SHAs are fixed in the workflow.
-- The private checkout is limited to:
-  - PR #8: `projects/wequip/development/ssfout_target_v1/`
-  - PR #9: `projects/wequip/development/effectaware/`
-  - PR #9: `projects/wequip/source/runtime/`
-- `fetch-depth: 1` and `persist-credentials: false` are set for both private checkouts.
-- The PAT is supplied only to the checkout action. It is not placed in a shell environment or passed to Python tests.
-- No private-source archive, test artifact, cache, or source copy is uploaded.
-- The public log contains test output and a sanitized receipt with commit SHAs and suite outcomes only.
-- No WCL/Blizzard credentials, season database, user data, SimC binary, or production runtime is used.
+The trigger receipt contains only a request ID, TEST_ONLY marker, and the two fixed source SHAs. It contains no credentials and cannot select arbitrary code.
 
-The environment's required-reviewer gate must be configured before the secret is added. Keep write access to this public repository limited to trusted maintainers while the temporary secret exists.
+The user does not need to click Run workflow, approve a deployment, run local commands, or upload logs. A_MAIN inspects the Actions run, analyzes failures, makes authorized corrections, and triggers subsequent runs by updating the same marker file with a new request ID.
 
-## Cleanup after the run
+### 5. Cleanup
 
-After the required test evidence has been captured:
+After the focused test evidence has been captured:
 
 1. Revoke the Fine-grained PAT.
-2. Delete `WEQUIP_PRIVATE_SOURCE_READ_TOKEN` from the environment.
-3. Keep the sanitized Actions receipt; do not upload private source or raw test workspaces.
+2. Delete WEQUIP_PRIVATE_SOURCE_READ_TOKEN from Environment secrets.
+3. Retain the sanitized Actions receipt and trigger metadata; no private source archive or raw workspace is retained.
 
-## Interpretation of results
+## Security controls
 
-A green workflow proves only that the exact pinned code passed these focused tests on the specified public Ubuntu runner and dependency versions.
+- Public host permissions: contents: read only.
+- Trigger: push to one fixed marker path on main; no pull_request, schedule, or arbitrary ref input.
+- Private source SHAs are hard-coded in the workflow and independently checked against the trigger receipt.
+- Private checkouts use fetch-depth: 1, persist-credentials: false, and non-cone sparse-checkout allowlists.
+- PR #8 checkout is limited to projects/wequip/development/ssfout_target_v1/.
+- PR #9 checkout is limited to projects/wequip/development/effectaware/ and projects/wequip/source/runtime/.
+- Negative assertions verify that repository root README, private workflow files, and migration paths are not materialized.
+- The PAT is used only for a presence check and the private checkout action. It is never printed, persisted in Git configuration, or passed to Python test processes.
+- No private-source archive, artifact, or cache is uploaded.
+- Logs contain test output and a sanitized receipt with source SHAs and suite outcomes only.
+- No WCL/Blizzard credentials, season database, user data, SimC binary, or production runtime is used.
+
+Keep write access to the public repository limited to trusted maintainers while the temporary Environment Secret exists. The Environment is restricted to main; fork pull requests and arbitrary branches do not receive this secret.
+
+## Interpretation
+
+A green run proves only that the exact pinned code passed these focused tests on the specified public Ubuntu runner and dependency versions.
 
 It does not prove:
 
@@ -118,4 +117,4 @@ It does not prove:
 - a globally optimal complete gearset was produced;
 - the real season database, Windows runtime, or SimC pipeline is production-ready.
 
-Production state remains PAUSED / NOT COMPLETE until A_MAIN separately verifies the real downstream consumer and the approved production E2E.
+Production remains PAUSED / NOT COMPLETE until A_MAIN separately verifies the real downstream consumer and approved production E2E.
