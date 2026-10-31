@@ -1,0 +1,161 @@
+name: WEQUIP private-source focused tests (TEST_ONLY)
+run-name: WEQUIP private-source focused tests (TEST_ONLY)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wequip-private-source-focused-tests
+  cancel-in-progress: false
+
+jobs:
+  focused-private-source-tests:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: wequip-private-source-runner
+      deployment: false
+    env:
+      PR8_SOURCE_SHA: fb82e2127ca70848976484c84e0f91179ee75e80
+      PR9_SOURCE_SHA: 3a980caadacb340991b07778785e6700d587e46c
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONNOUSERSITE: "1"
+      PYTHONIOENCODING: utf-8
+    steps:
+      - name: Checkout public runner host
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Checkout private PR #8 receiver source at its exact approved SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: degong2-code/ai-project-lab
+          ref: fb82e2127ca70848976484c84e0f91179ee75e80
+          token: ${{ secrets.WEQUIP_PRIVATE_SOURCE_READ_TOKEN }}
+          path: private-source/pr8
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            /projects/wequip/development/ssfout_target_v1/
+          sparse-checkout-cone-mode: false
+
+      - name: Checkout private PR #9 solver source at its exact approved SHA
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: degong2-code/ai-project-lab
+          ref: 3a980caadacb340991b07778785e6700d587e46c
+          token: ${{ secrets.WEQUIP_PRIVATE_SOURCE_READ_TOKEN }}
+          path: private-source/pr9
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            /projects/wequip/development/effectaware/
+            /projects/wequip/source/runtime/
+          sparse-checkout-cone-mode: false
+
+      - name: Verify exact source identities and sparse checkout boundary
+        id: verify_source
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import sys
+          if sys.version_info[:2] != (3, 12):
+              raise SystemExit(f"EXPECTED_PYTHON_3_12_GOT_{sys.version_info.major}.{sys.version_info.minor}")
+          print(f"Python {sys.version.split()[0]}")
+          PY
+          test "$(git -C private-source/pr8 rev-parse HEAD)" = "$PR8_SOURCE_SHA"
+          test "$(git -C private-source/pr9 rev-parse HEAD)" = "$PR9_SOURCE_SHA"
+          test -f private-source/pr8/projects/wequip/development/ssfout_target_v1/SSFINDOUT_Target_V1_Receiver_Adapter_v1.py
+          test -f private-source/pr8/projects/wequip/development/ssfout_target_v1/SSFINDOUT_TO_WEQUIP_TARGET_V1_WEQUIP.schema.json
+          test -f private-source/pr8/projects/wequip/development/ssfout_target_v1/SSFINDOUT_TO_WEQUIP_TARGET_V1.example_mage_frost_arcane.json
+          test -f private-source/pr8/projects/wequip/development/ssfout_target_v1/test_receiver_adapter_v1.py
+          test -f private-source/pr9/projects/wequip/development/effectaware/Absolute_CHMV_Balanced_Single_Spec_Optimizer_v1.py
+          test -f private-source/pr9/projects/wequip/development/effectaware/test_absolute_chmv_balanced_v1.py
+          test -f private-source/pr9/projects/wequip/source/runtime/legacy_root/Manifest_Loader.py
+          test -f private-source/pr9/projects/wequip/source/runtime/effectaware_reference/Generalized_Item_Secondary_Effect_Provider_v2.py
+          test -f private-source/pr9/projects/wequip/source/runtime/composition/Candidate_Basis_Augmented_Multi_Scenario_Joint_Optimizer_v2.py
+          test ! -e private-source/pr8/README.md
+          test ! -e private-source/pr8/projects/wequip/source
+          test ! -e private-source/pr9/README.md
+          test ! -e private-source/pr9/.github
+          test ! -e private-source/pr9/projects/wequip/migration
+          echo "PR8_SOURCE_SHA=$PR8_SOURCE_SHA"
+          echo "PR9_SOURCE_SHA=$PR9_SOURCE_SHA"
+          echo "PRIVATE_CHECKOUT_SCOPE=ALLOWLISTED_WEQUIP_TEST_AND_RUNTIME_DIRECTORIES"
+
+      - name: Install pinned native test dependencies
+        id: dependencies
+        if: steps.verify_source.outcome == 'success'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv .venv
+          .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir "jsonschema==4.25.1" "ortools==9.14.6206"
+
+      - name: Run PR #8 receiver schema, semantic and negative tests
+        id: receiver
+        if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
+        continue-on-error: true
+        working-directory: private-source/pr8
+        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/ssfout_target_v1/test_receiver_adapter_v1.py"
+
+      - name: Run PR #9 Absolute CHMV Balanced native CP-SAT tests
+        id: absolute
+        if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
+        continue-on-error: true
+        working-directory: private-source/pr9
+        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/effectaware/test_absolute_chmv_balanced_v1.py"
+
+      - name: Run existing EffectAware native CP-SAT regression tests
+        id: effectaware
+        if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
+        continue-on-error: true
+        working-directory: private-source/pr9
+        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/effectaware/test_effectaware_cp_sat_v1_1.py"
+
+      - name: Run existing Stage13 resource, copy, tier and socket regression tests
+        id: stage13
+        if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
+        continue-on-error: true
+        working-directory: private-source/pr9
+        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/effectaware/test_stage13_resource_copy_basis_v1_1.py"
+
+      - name: Write sanitized test receipt and enforce aggregate result
+        if: always()
+        shell: bash
+        env:
+          SOURCE_CHECK: ${{ steps.verify_source.outcome || 'not-run' }}
+          DEPENDENCIES: ${{ steps.dependencies.outcome || 'not-run' }}
+          RECEIVER: ${{ steps.receiver.outcome || 'not-run' }}
+          ABSOLUTE: ${{ steps.absolute.outcome || 'not-run' }}
+          EFFECTAWARE: ${{ steps.effectaware.outcome || 'not-run' }}
+          STAGE13: ${{ steps.stage13.outcome || 'not-run' }}
+        run: |
+          {
+            echo "## WEQUIP private-source focused test receipt"
+            echo
+            echo "- Scope: TEST_ONLY; synthetic fixtures and native focused CP-SAT tests"
+            echo "- Public host commit: $GITHUB_SHA"
+            echo "- Private PR #8 source SHA: $PR8_SOURCE_SHA"
+            echo "- Private PR #9 source SHA: $PR9_SOURCE_SHA"
+            echo "- Source checkout: $SOURCE_CHECK"
+            echo "- Dependency install: $DEPENDENCIES"
+            echo "- PR #8 receiver tests: $RECEIVER"
+            echo "- PR #9 Absolute CHMV tests: $ABSOLUTE"
+            echo "- Existing EffectAware CP-SAT tests: $EFFECTAWARE"
+            echo "- Existing Stage13 resource/copy/tier/socket tests: $STAGE13"
+            echo "- Production promotion: NOT PERFORMED"
+            echo "- Private source artifact upload: NONE"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for result in "$SOURCE_CHECK" "$DEPENDENCIES" "$RECEIVER" "$ABSOLUTE" "$EFFECTAWARE" "$STAGE13"; do
+            if [[ "$result" != "success" ]]; then
+              echo "FOCUSED_TEST_RUN_NOT_COMPLETE: $result"
+              exit 1
+            fi
+          done
