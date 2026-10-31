@@ -79,6 +79,11 @@ jobs:
           test -f private-source/pr9/projects/wequip/source/runtime/legacy_root/Manifest_Loader.py
           test -f private-source/pr9/projects/wequip/source/runtime/effectaware_reference/Generalized_Item_Secondary_Effect_Provider_v2.py
           test -f private-source/pr9/projects/wequip/source/runtime/composition/Candidate_Basis_Augmented_Multi_Scenario_Joint_Optimizer_v2.py
+          test ! -e private-source/pr8/README.md
+          test ! -e private-source/pr8/projects/wequip/source
+          test ! -e private-source/pr9/README.md
+          test ! -e private-source/pr9/.github
+          test ! -e private-source/pr9/projects/wequip/migration
           echo "PR8_SOURCE_SHA=$PR8_SOURCE_SHA"
           echo "PR9_SOURCE_SHA=$PR9_SOURCE_SHA"
           echo "PRIVATE_CHECKOUT_SCOPE=ALLOWLISTED_WEQUIP_TEST_AND_RUNTIME_DIRECTORIES"
