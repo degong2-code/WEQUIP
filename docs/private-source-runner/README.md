@@ -17,6 +17,8 @@ This runner is not a production runtime and does not certify Production F, MIG-0
 
 The workflow contains these SHAs as fixed literals. It accepts no arbitrary source-ref input and runs only from the public repository's `main` branch.
 
+The environment is used only as an approval/secret gate. The workflow sets `deployment: false`, so it does not create a deployment record.
+
 ## Test suites
 
 The workflow runs four suites:
