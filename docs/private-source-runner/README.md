@@ -4,7 +4,7 @@
 
 This workflow uses the public degong2-code/WEQUIP repository only as a GitHub-hosted execution host for focused tests against two exact commits in private degong2-code/ai-project-lab.
 
-It does not publish, mirror, commit, or upload private WEQUIP source code or data. The public repository stores only this workflow, this setup document, and a small non-secret trigger receipt. No private source artifact or cache is uploaded.
+It does not publish, mirror, commit, or upload private WEQUIP source code or data. The public repository stores only this workflow, this setup document, and a small non-secret trigger receipt. No private source artifact, raw test log, or cache is uploaded.
 
 This runner is TEST_ONLY. It does not certify Production F, MIG-04, a real-season database, Windows runtime behavior, SimulationCraft parity, or complete Gearset/Envelope E2E.
 
@@ -97,9 +97,9 @@ After the focused test evidence has been captured:
 - PR #8 checkout is limited to projects/wequip/development/ssfout_target_v1/.
 - PR #9 checkout is limited to projects/wequip/development/effectaware/ and projects/wequip/source/runtime/.
 - Negative assertions verify that repository root README, private workflow files, and migration paths are not materialized.
-- The PAT is used only for a presence check and the private checkout action. It is never printed, persisted in Git configuration, or passed to Python test processes.
+- The PAT is used only for a presence check and the private checkout action. It is never printed, persisted in Git configuration, or passed to Python test processes. Raw test output is captured under the ephemeral runner's temporary directory and never published.
 - No private-source archive, artifact, or cache is uploaded.
-- Logs contain test output and a sanitized receipt with source SHAs and suite outcomes only.
+- Public logs contain only suite-level PASS/FAIL, exit codes, and hashes/byte counts of private temporary logs. Raw stdout/stderr from private tests stays in the ephemeral runner's temporary directory and is not printed or uploaded.
 - No WCL/Blizzard credentials, season database, user data, SimC binary, or production runtime is used.
 
 Keep write access to the public repository limited to trusted maintainers while the temporary Environment Secret exists. The Environment is restricted to main; fork pull requests and arbitrary branches do not receive this secret.
