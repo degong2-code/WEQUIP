@@ -2,7 +2,11 @@ name: WEQUIP private-source focused tests (TEST_ONLY)
 run-name: WEQUIP private-source focused tests (TEST_ONLY)
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - docs/private-source-runner/trigger.json
 
 permissions:
   contents: read
@@ -15,7 +19,7 @@ jobs:
   focused-private-source-tests:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     environment:
       name: wequip-private-source-runner
       deployment: false
@@ -30,6 +34,46 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+
+      - name: Verify trigger request and fixed source pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("docs/private-source-runner/trigger.json")
+          if not p.is_file():
+              raise SystemExit("TRIGGER_FILE_MISSING")
+          data = json.loads(p.read_text(encoding="utf-8"))
+          expected = {
+              "scope": "TEST_ONLY",
+              "requested_by": "A_MAIN",
+              "pr8_source_sha": "fb82e2127ca70848976484c84e0f91179ee75e80",
+              "pr9_source_sha": "3a980caadacb340991b07778785e6700d587e46c",
+              "private_source_artifact_upload": False
+          }
+          for key, value in expected.items():
+              if data.get(key) != value:
+                  raise SystemExit(f"TRIGGER_PIN_MISMATCH: {key}")
+          request_id = data.get("request_id")
+          if not isinstance(request_id, str) or not request_id.strip():
+              raise SystemExit("TRIGGER_REQUEST_ID_MISSING")
+          print(f"REQUEST_ID={request_id}")
+          print("TRIGGER_SCOPE_AND_FIXED_SOURCE_PINS=PASS")
+          PY
+
+      - name: Check private source read token is configured
+        shell: bash
+        env:
+          PRIVATE_SOURCE_READ_TOKEN: ${{ secrets.WEQUIP_PRIVATE_SOURCE_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "$PRIVATE_SOURCE_READ_TOKEN" ]]; then
+            echo "::error::Environment Secret WEQUIP_PRIVATE_SOURCE_READ_TOKEN is missing."
+            exit 1
+          fi
+          echo "Private source read token is configured; value is not displayed."
 
       - name: Checkout private PR #8 receiver source at its exact approved SHA
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
