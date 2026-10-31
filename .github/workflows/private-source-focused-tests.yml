@@ -147,28 +147,84 @@ jobs:
         if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
         continue-on-error: true
         working-directory: private-source/pr8
-        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/ssfout_target_v1/test_receiver_adapter_v1.py"
+        shell: bash
+        run: |
+          set +e
+          "$GITHUB_WORKSPACE/.venv/bin/python" -B projects/wequip/development/ssfout_target_v1/test_receiver_adapter_v1.py > "$RUNNER_TEMP/pr8-receiver.log" 2>&1
+          status=$?
+          set -e
+          digest=$(sha256sum "$RUNNER_TEMP/pr8-receiver.log" | cut -d ' ' -f1)
+          bytes=$(wc -c < "$RUNNER_TEMP/pr8-receiver.log" | tr -d ' ')
+          if [[ "$status" -eq 0 ]]; then
+            echo "RECEIVER=PASS"
+          else
+            echo "::error::RECEIVER=FAIL exit=$status; raw private-source diagnostics are withheld from public logs"
+          fi
+          echo "RECEIVER_RAW_LOG_SHA256=$digest BYTES=$bytes" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Run PR #9 Absolute CHMV Balanced native CP-SAT tests
         id: absolute
         if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
         continue-on-error: true
         working-directory: private-source/pr9
-        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/effectaware/test_absolute_chmv_balanced_v1.py"
+        shell: bash
+        run: |
+          set +e
+          "$GITHUB_WORKSPACE/.venv/bin/python" -B projects/wequip/development/effectaware/test_absolute_chmv_balanced_v1.py > "$RUNNER_TEMP/pr9-absolute.log" 2>&1
+          status=$?
+          set -e
+          digest=$(sha256sum "$RUNNER_TEMP/pr9-absolute.log" | cut -d ' ' -f1)
+          bytes=$(wc -c < "$RUNNER_TEMP/pr9-absolute.log" | tr -d ' ')
+          if [[ "$status" -eq 0 ]]; then
+            echo "ABSOLUTE=PASS"
+          else
+            echo "::error::ABSOLUTE=FAIL exit=$status; raw private-source diagnostics are withheld from public logs"
+          fi
+          echo "ABSOLUTE_RAW_LOG_SHA256=$digest BYTES=$bytes" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Run existing EffectAware native CP-SAT regression tests
         id: effectaware
         if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
         continue-on-error: true
         working-directory: private-source/pr9
-        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/effectaware/test_effectaware_cp_sat_v1_1.py"
+        shell: bash
+        run: |
+          set +e
+          "$GITHUB_WORKSPACE/.venv/bin/python" -B projects/wequip/development/effectaware/test_effectaware_cp_sat_v1_1.py > "$RUNNER_TEMP/effectaware-regression.log" 2>&1
+          status=$?
+          set -e
+          digest=$(sha256sum "$RUNNER_TEMP/effectaware-regression.log" | cut -d ' ' -f1)
+          bytes=$(wc -c < "$RUNNER_TEMP/effectaware-regression.log" | tr -d ' ')
+          if [[ "$status" -eq 0 ]]; then
+            echo "EFFECTAWARE=PASS"
+          else
+            echo "::error::EFFECTAWARE=FAIL exit=$status; raw private-source diagnostics are withheld from public logs"
+          fi
+          echo "EFFECTAWARE_RAW_LOG_SHA256=$digest BYTES=$bytes" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Run existing Stage13 resource, copy, tier and socket regression tests
         id: stage13
         if: steps.dependencies.outcome == 'success' && steps.verify_source.outcome == 'success'
         continue-on-error: true
         working-directory: private-source/pr9
-        run: "$GITHUB_WORKSPACE/.venv/bin/python -B projects/wequip/development/effectaware/test_stage13_resource_copy_basis_v1_1.py"
+        shell: bash
+        run: |
+          set +e
+          "$GITHUB_WORKSPACE/.venv/bin/python" -B projects/wequip/development/effectaware/test_stage13_resource_copy_basis_v1_1.py > "$RUNNER_TEMP/stage13-regression.log" 2>&1
+          status=$?
+          set -e
+          digest=$(sha256sum "$RUNNER_TEMP/stage13-regression.log" | cut -d ' ' -f1)
+          bytes=$(wc -c < "$RUNNER_TEMP/stage13-regression.log" | tr -d ' ')
+          if [[ "$status" -eq 0 ]]; then
+            echo "STAGE13=PASS"
+          else
+            echo "::error::STAGE13=FAIL exit=$status; raw private-source diagnostics are withheld from public logs"
+          fi
+          echo "STAGE13_RAW_LOG_SHA256=$digest BYTES=$bytes" >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
 
       - name: Write sanitized test receipt and enforce aggregate result
         if: always()
